@@ -135,7 +135,7 @@ def _build_tokens_from_flat_state(x_tensor, n_rb, n_veh):
     tokens = tf.concat([rb_feat, scalars_tiled], axis=2)        # [B,n_rb,6]
     return tokens
 
-def _mha_block(tokens, num_heads=4, d_k=16, scope='mha'):
+def _mha_block(tokens, num_heads, d_k, scope='mha'):
     with tf.compat.v1.variable_scope(scope):
         B = tf.shape(tokens)[0]
         T = int(tokens.get_shape()[1])
@@ -191,9 +191,7 @@ def _mha_preprocess(x_tensor, n_rb, n_veh, scope='mha_pre', proj_out_dim=None):
         return x_tensor + proj
 
 # -------------------- 构建统一的计算图 --------------------
-n_hidden_1 = 256
-n_hidden_2 = 64
-n_hidden_3 = 16
+
 n_input = len(get_state(env))
 n_output = n_RB * len(env.V2V_power_dB_List)  # 动作数 = 资源块数 * 功率级别数
 
@@ -387,8 +385,7 @@ if __name__ == '__main__':
         if i_episode % 100 == 0:
             env.renew_vehicles_positions()
             env.renew_Vehicle_neighbor()
-            env.renew_vehicles_channel(3, 80, 20)
-            env.renew_channels_fastfading(3, 80, 20)
+
 
         repeat_rewards = []
         repeat_V2I_SINR = []
@@ -432,7 +429,7 @@ if __name__ == '__main__':
                 epsi_V2I_SINR_C = V2I_SINR_C
                 epsi_V2V_SINR_C = V2V_SINR_C
                 # 更新快衰信道
-                env.renew_channels_fastfading(3, 80, 20)
+
 
                 # 存储每条链路的经验（初始优先级默认使用当前最大优先级）
                 for i in range(n_veh):
