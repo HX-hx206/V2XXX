@@ -36,7 +36,7 @@ with tf.compat.v1.Session(config=config) as test_sess:
 # 禁用 Eager Execution（采用 TF1 风格）
 tf.compat.v1.disable_eager_execution()
 
-# 重新设置 config（可选）
+# 重新设置 config
 config = tf.compat.v1.ConfigProto()
 tf.debugging.set_log_device_placement(True)
 config.gpu_options.allow_growth = True
@@ -44,8 +44,8 @@ config.gpu_options.allow_growth = True
 # 全局变量
 reward = []
 
-# ====== PER 超参数（新增） ======
-per_alpha = 0.6         # 已在 ReplayMemory 内使用
+# ====== PER 超参数 ======
+per_alpha = 0.6         
 per_beta_start = 0.4
 per_beta_end = 1.0
 per_beta_current = per_beta_start
@@ -464,15 +464,6 @@ if __name__ == '__main__':
             avg_episode_loss = 0  # 未训练时设为 0
         episode_loss_list.append(avg_episode_loss)
 
-        Print_sum_reward.append(np.mean(repeat_rewards))
-        Print_Avg_V2I_SINR_C.append(np.mean(repeat_V2I_SINR))
-        Print_Avg_V2V_SINR_C.append(np.mean(repeat_V2V_SINR))
-
-        # 新增：计算每个 episode 结束后剩余负载和剩余时间的平均值（归一化）
-        avg_load_remaining = np.mean(env.demand / env.demand_size)
-        avg_time_remaining = np.mean(env.individual_time_limit / env.time_slow)
-        Print_Avg_load_remaining.append(avg_load_remaining)
-        Print_Avg_time_remaining.append(avg_time_remaining)
 
         print(f"Episode: {i_episode}, Explore: {round(epsi, 4)}, Avg Reward: {round(Print_sum_reward[-1], 4)} | PER beta={per_beta_current:.3f}")
         print(f"Avg V2I SINR: {round(Print_Avg_V2I_SINR_C[-1], 4)}, Avg V2V SINR: {round(Print_Avg_V2V_SINR_C[-1], 4)}")
