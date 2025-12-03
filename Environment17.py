@@ -641,28 +641,7 @@ class Environ:
 
                         pass
 
-            # ---------------- 计算 SINR 与容量 ----------------
-            V2I_SINR = V2I_Signals / (V2I_Interference + self.sig2 + eps)  # [nRB]
-            V2V_SINR = V2V_Signals / (V2V_Interference + self.sig2 + eps)  # [nVeh, nNei]
-
-            V2I_Capacity = W * np.log2(1.0 + V2I_SINR)  # bit/s
-            V2V_Capacity = W * np.log2(1.0 + np.maximum(V2V_SINR, 0))  # 负值裁零再取对数更稳
-
-
-            nH = len(self.HumanDrivenVehicle_list)
-            human_C = V2V_Capacity[0:nH, :]  # 人驾
-            auto_C = V2V_Capacity[nH:nH + len(self.AutonomousDrivenVehicle_list), :]  # 无人驾
-
-
-            human_mask = self.active_links[0:nH, :]
-            auto_mask = self.active_links[nH:nH + len(self.AutonomousDrivenVehicle_list), :]
-
-            human_mean_cap = (human_C[human_mask].mean() if np.any(human_mask) else 0.0)
-            auto_mean_cap = (auto_C[auto_mask].mean() if np.any(auto_mask) else 0.0)
-
-
-            V2I_reward = V2I_Capacity.sum() / max(1, len(V2I_Capacity))
-
+       
             # ---------------- 奖励（示例：线性加权） ----------------
             total_reward = α * human_mean_cap + β * auto_mean_cap + γ * V2I_reward
 
@@ -704,32 +683,7 @@ class Environ:
             self.AutonomousDrivenVehicle_list = []
             self.vehicles = []
 
-            #设置车辆数
-            if n_Veh > 0:
-                self.n_Veh = n_Veh
-
-            # 根据车辆数量四分之一的比例添加新车辆
-            self.add_new_HumanDrivenVehicle_by_number(int(self.n_Veh / 4))
-            self.add_new_AutonomousDrivenVehicle_by_number(int(self.n_Veh / 4))
-            # print(f"self.vehicles: {self.vehicles}")
-            # print(f"act:reward: {reward}")
-
-            #更新车辆邻居信息
-            self.renew_Vehicle_neighbor()
-
-            #更新车辆信道信息
-            self.renew_vehicles_channel(0,0,0)
-            self.renew_channels_fastfading(0,0,0)
-
-            #初始化链路需求和时间限制
-            self.demand = self.demand_size * np.ones((self.n_Veh, self.n_neighbor))
-            self.individual_time_limit = self.time_slow * np.ones((self.n_Veh, self.n_neighbor))
-            self.active_links = np.ones((self.n_Veh, self.n_neighbor), dtype='bool')
-
-            #初始化随机基线的链路需求和时间限制
-            self.demand_rand = self.demand_size * np.ones((self.n_Veh, self.n_neighbor))
-            self.individual_time_limit_rand = self.time_slow * np.ones((self.n_Veh, self.n_neighbor))
-            self.active_links_rand = np.ones((self.n_Veh, self.n_neighbor), dtype='bool')
+            
 
 
 
